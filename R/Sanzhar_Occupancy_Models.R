@@ -133,14 +133,41 @@ occu.m2 <- occu(formula = ~ 1 # detection formula first
 summary(occu.m2)
 
 
+## ----covpredict----------
+# Predict effect on new data set to see how occupancy changes with `Dist_village`
+predict_m2_Dist <- cbind(predict(occu.m2,
+                                 newdata = data.frame(Dist_village = seq(min(site_cov$Dist_village, 
+                                                                             na.rm = TRUE),
+                                                                         max(site_cov$Dist_village, 
+                                                                             na.rm = TRUE), 
+                                                                         by = 0.01)),
+                                 type = "state"),
+                         data.frame(Dist_village = seq(min(site_cov$Dist_village, 
+                                                           na.rm = TRUE),
+                                                       max(site_cov$Dist_village, 
+                                                           na.rm = TRUE), 
+                                                       by = 0.01)))
+
+## ----plotrelationships----
+# Plot relationship with Dist_village
+ggplot(data = predict_m2_Dist, aes(x = Dist_village, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
+  stat_smooth(method = "loess", col = "black", se = FALSE) +
+  labs(x = "Distance to village (scaled)", y = "Predicted Occupancy Probability") +
+  theme_classic()
+
+
+
+
+
 #############################################################################################
 ## ---- Multispecies Model ------------------------------------------------------
 #############################################################################################
 
 # bring in data
-detection_history_moose <- read_excel("C:/Users/aimee.tallian/OneDrive - NINA/Desktop/Ongoing Projects/Sanzhar_Khazakstan/Data for model.xlsx", sheet = "Moose")
-detection_history_reddeer <- read_excel("C:/Users/aimee.tallian/OneDrive - NINA/Desktop/Ongoing Projects/Sanzhar_Khazakstan/Data for model.xlsx", sheet = "Red Deer")
-detection_history_roedeer <- read_excel("C:/Users/aimee.tallian/OneDrive - NINA/Desktop/Ongoing Projects/Sanzhar_Khazakstan/Data for model.xlsx", sheet = "Roe Deer")
+detection_history_moose <- read_excel(here::here("data/Data_for_model.xlsx"), sheet = "Moose")
+detection_history_reddeer <- read_excel(here::here("data/Data_for_model.xlsx"),sheet = "Red Deer")
+detection_history_roedeer <- read_excel(here::here("data/Data_for_model.xlsx"), sheet = "Roe Deer")
 
 
 
@@ -221,54 +248,7 @@ summary(sample.unmarkedFrame_simple)
 ## ---- CODE FROM BEFORE --------------------------------------------------------
 
 
-## ----covpredict----------
-# Predict effect on new data set to see how occupancy changes with `forest`
-predict_m2_forest <- cbind(predict(occu.m2,
-                                   newdata = data.frame(forest = seq(min(site_cov$forest, 
-                                                                         na.rm = TRUE),
-                                                                     max(site_cov$forest, 
-                                                                         na.rm = TRUE), 
-                                                                     by = 0.01),
-                                                        agri = mean(site_cov$agri)),
-                                   type = "state"),
-                           data.frame(forest = seq(min(site_cov$forest, 
-                                                       na.rm = TRUE),
-                                                   max(site_cov$forest, 
-                                                       na.rm = TRUE), 
-                                                   by = 0.01),
-                                      agri = mean(site_cov$agri)))
 
-# Predict effect on new data set to see how occupancy changes with `agri`
-predict_m2_agri <- cbind(predict(occu.m2,
-                                 newdata = data.frame(agri = seq(min(site_cov$agri, 
-                                                                     na.rm = TRUE),
-                                                                 max(site_cov$agri, 
-                                                                     na.rm = TRUE), 
-                                                                 by = 0.01),
-                                                      forest = mean(site_cov$forest)),
-                                 type = "state"),
-                         data.frame(agri = seq(min(site_cov$agri, 
-                                                   na.rm = TRUE),
-                                               max(site_cov$agri, 
-                                                   na.rm = TRUE), 
-                                               by = 0.01),
-                                    forest = mean(site_cov$forest)))
-
-## ----plotrelationships----
-library(ggplot2)
-# Plot relationship with forest
-ggplot(data = predict_m2_forest, aes(x = forest, y = Predicted)) +
-  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
-  stat_smooth(method = "loess", col = "black", se = FALSE) +
-  labs(x = "Forest (scaled)", y = "Predicted Occupancy Probability") +
-  theme_classic()
-
-# Plot relationship with agri
-ggplot(data = predict_m2_agri, aes(x = agri, y = Predicted)) +
-  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
-  stat_smooth(method = "loess", col = "black", se = FALSE) +
-  labs(x = "Agriculture (scaled)", y = "Predicted Occupancy Probability") +
-  theme_classic()
 
 ## ----mbgof---------------------------------------------------------------
 # install.packages("AICcmodavg") # First time only
