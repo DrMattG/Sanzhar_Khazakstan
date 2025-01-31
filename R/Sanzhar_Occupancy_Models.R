@@ -7,6 +7,7 @@
 library(unmarked)
 library(tidyverse)
 library(readxl)
+library(AICcmodavg)
 
 #############################################################################################
 ## ---- Single Species Model ------------------------------------------------------
@@ -70,6 +71,10 @@ site_cov <- site_cov %>%
     Dist_village = 'Distance to nearest town/village km') %>%
     select(-Notes)
 
+# scale the site covariates
+
+site_cov <- site_cov %>%
+  mutate(across(everything(), ~ scale(.x, center = TRUE, scale = TRUE)))
 
 # Build a new unmarkedFramOccu
 sample.unmarkedFrame_cov <- unmarkedFrameOccu( # y is a matrix with observed detection history 
@@ -101,41 +106,37 @@ summary(sample.unmarkedFrame_cov)
 # probably not enough variation in the covariates to run the model
 
 summary(sample.unmarkedFrame_cov@siteCovs)
-# Elevation         Year        Dist_road      Dist_village   
-# Min.   : 666   Min.   :2019   Min.   :6.500   Min.   : 4.400  
-# 1st Qu.: 943   1st Qu.:2020   1st Qu.:6.700   1st Qu.: 7.000  
-# Median :1079   Median :2021   Median :7.000   Median : 9.900  
-# Mean   :1075   Mean   :2021   Mean   :7.721   Mean   : 9.041  
-# 3rd Qu.:1164   3rd Qu.:2022   3rd Qu.:9.100   3rd Qu.:11.000  
-# Max.   :1478   Max.   :2023   Max.   :9.200   Max.   :12.400  
-
-# occu.m2 <- occu(formula = ~ 1 # detection formula first
-#                 ~ Elevation + Year, # occupancy formula second,
-#                 data = sample.unmarkedFrame_cov, 
-#                 start = starting_values)
+ occu.m1 <- occu(formula = ~ 1 # detection formula first
+                 ~ Elevation + Year, # occupancy formula second,
+                 data = sample.unmarkedFrame_cov)
 
 # occu.m2 <- occu(formula = ~ 1 # detection formula first
 #                 ~ Elevation , # occupancy formula second,
 #                 data = sample.unmarkedFrame_cov)
 
 
-# occu.m2 <- occu(formula = ~ 1 # detection formula first
-#                 ~ Dist_road , # occupancy formula second,
-#                 data = sample.unmarkedFrame_cov)
-
-
 occu.m2 <- occu(formula = ~ 1 # detection formula first
+                 ~ Dist_road , # occupancy formula second,
+                 data = sample.unmarkedFrame_cov)
+
+
+occu.m3 <- occu(formula = ~ 1 # detection formula first
                 ~ Dist_village , # occupancy formula second,
+                data = sample.unmarkedFrame_cov)
+
+occu.m4 <- occu(formula = ~ 1 # detection formula first
+                ~  Elevation + Year+Dist_village , # occupancy formula second,
                 data = sample.unmarkedFrame_cov)
 
 
 # Summarize
-summary(occu.m2)
-
-
+summary(occu.m1)
+summary(occu.m2)# does not converge
+summary(occu.m3)
+summary(occu.m4)
 ## ----covpredict----------
 # Predict effect on new data set to see how occupancy changes with `Dist_village`
-predict_m2_Dist <- cbind(predict(occu.m2,
+predict_m3_Dist <- cbind(predict(occu.m2,
                                  newdata = data.frame(Dist_village = seq(min(site_cov$Dist_village, 
                                                                              na.rm = TRUE),
                                                                          max(site_cov$Dist_village, 
@@ -157,7 +158,16 @@ ggplot(data = predict_m2_Dist, aes(x = Dist_village, y = Predicted)) +
   theme_classic()
 
 
+## ----mbgof---------------------------------------------------------------
 
+# Do Mackenzie-Bailey goodness of fit test for single-season occupancy model
+m2_mb.gof.boot <- mb.gof.test(occu.m2,
+                              # Demonstrate with small number of sims (10), 
+                              # but then change to large number (e.g. 1000)
+                              nsim = 1000)
+
+# View Results
+m2_mb.gof.boot
 
 
 #############################################################################################
@@ -214,51 +224,3 @@ sample.unmarkedFrame_simple <- unmarkedFrameOccu( # y is a matrix with observed 
 summary(sample.unmarkedFrame_simple)
 
 
-
-
-
-##############################################################################
-############## EVERYTHING WORKS UNTIL HERE ###################
-##############################################################################
-
-### TO DO 
-
-# Have only eye-balled that all N/As are the same for each data sheet (looks good), but likely need to confirm and look for errors
-# I left the timeperiods as weeks (i.e., 52 columns). I guess you will want to collapse this into 2 week periods or even more coarse, I let you decide
-# I brought the multi-species data into R (moose, red deer, roe deer) and gave them a silimar format to the bear data. I guess these need be combined for the multisp. model
-# I did not make code for a multispecies model
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## ---- CODE FROM BEFORE --------------------------------------------------------
-
-
-
-
-## ----mbgof---------------------------------------------------------------
-# install.packages("AICcmodavg") # First time only
-library(AICcmodavg)
-
-# Do Mackenzie-Bailey goodness of fit test for single-season occupancy model
-m2_mb.gof.boot <- mb.gof.test(occu.m2,
-                              # Demonstrate with small number of sims (10), 
-                              # but then change to large number (e.g. 1000)
-                              nsim = 50)
-
-# View Results
-m2_mb.gof.boot
