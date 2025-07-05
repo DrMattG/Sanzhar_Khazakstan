@@ -1,0 +1,270 @@
+---
+title: "Monitoring  brown bears in Khazakstan: A pilot study from the Altai Mountain Region"
+format: html
+editor: visual
+---
+
+## Introduction
+
+Here we develop occupancy models to predict the occurrence of brown bears (at a local scale) in the northern part of the Altai Mountains of northeastern Kazakhstan.
+
+## Data collection
+
+Brown bear surveys were conducted between 2019 and 2023 using remotely triggered camera traps (Bushnell Trophy Cam HD and Bushnell Trophy Cam HD Aggressor). Ten camera traps were deployed in the ‘Kuchikha’ hunting estate (15 km²), under a scientific cooperation agreement dated January 30, 2019, and renewed on April 12, 2022. On average, the camera traps were located 1,400 m apart from one another and were placed in the forest where bear sign has previously been detected (elevation range 666 – 1,478 m). Cameras were attached to trees at a height of 80 cm (the average height at the withers of the Altai brown bear); this placement aimed to optimize the detection of bear presence while minimizing interference from vegetation or obstructions.
+
+The 10 camera traps were installed and left to collect data year-round and were deployed a total of 4,654 days over 5 years (Table 1). We also calculated the distance (m) to the nearest road and to the nearest village from each camera trap as a proxy for potential anthropogenic disturbance.
+
+## Single-species occupancy model
+
+### Load the data and libraries
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: libraries & import data
+
+library(unmarked)
+library(tidyverse)
+library(readxl)
+library(AICcmodavg)
+
+# Load detection history - Bears
+detection_history_bear <- read_excel(here::here("data/Data_for_model_new.xlsx"), sheet = "Bear")
+
+# Examine data
+#head(detection_history_bear)
+
+#View(detection_history_bear)
+
+# convert "N/A" to NA
+detection_history_bear<-detection_history_bear |> 
+  mutate(across(10:68, ~ na_if(., "N/A"))) |> 
+  mutate(across(10:68, as.numeric))
+
+# occupancy model data
+# summary(sample.unmarkedFrame_simple)
+
+# Load covariate data
+site_cov <- detection_history_bear[5:9]
+
+# Convert to numeric
+site_cov$Elevation<- as.numeric(site_cov$Elevation)
+
+site_cov <- site_cov %>%
+  rename(
+    Dist_road = 'Distance to the nearest road km',
+    Dist_village = 'Distance to nearest town/village km') %>%
+    select(-Notes)
+
+# save the mean and sd for de-scaling 
+dist_village_mean <- mean(site_cov$Dist_village, na.rm = TRUE)
+dist_village_sd <- sd(site_cov$Dist_village, na.rm = TRUE)
+dist_road_mean <- mean(site_cov$Dist_road, na.rm = TRUE)
+dist_road_sd <- sd(site_cov$Dist_road, na.rm = TRUE)
+elevation_mean <- mean(site_cov$Elevation, na.rm = TRUE)
+elevation_sd <- sd(site_cov$Elevation, na.rm = TRUE)
+year_mean <- mean(site_cov$Year, na.rm = TRUE)
+year_sd <- sd(site_cov$Year, na.rm = TRUE)
+
+
+# scale the site covariates
+
+site_cov <- site_cov %>%
+  mutate(across(c("Elevation", "Dist_road", "Dist_village"), ~ scale(.x, center = TRUE, scale = TRUE)))
+
+#site_cov <- as.data.frame(scale(site_cov))
+
+# Build a unmarkedFramOccu with site_cov
+sample.unmarkedFrame_cov <- unmarkedFrameOccu( # y is a matrix with observed detection history 
+  # (0's and 1's, one row per site, one column per survey)
+  y = as.matrix(detection_history_bear[10:68]),
+    siteCovs = site_cov) 
+
+# Occupancy model data
+#summary(sample.unmarkedFrame_cov)
+
+```
+
+### Build occupancy models
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: occupancy models
+
+# Elevation
+occu.m1 <- occu(formula = ~ 1 # detection formula 
+                 ~ Elevation, # occupancy formula 
+                 data = sample.unmarkedFrame_cov)
+
+# Dist to road
+occu.m2 <- occu(formula = ~ 1 
+                 ~ Dist_road , 
+                 data = sample.unmarkedFrame_cov)
+# Dist to village
+occu.m3 <- occu(formula = ~ 1 
+                ~ Dist_village , 
+                data = sample.unmarkedFrame_cov)
+
+## summarise models
+summary(occu.m1)
+summary(occu.m2)
+summary(occu.m3)
+
+occu.null <- occu(formula = ~1 ~1, data = sample.unmarkedFrame_cov)
+summary(occu.null)
+
+# Compare models
+# Extract AIC values
+AIC_null <- occu.null@AIC
+AIC_m3 <- occu.m3@AIC
+
+# Print and compare
+AIC_null
+AIC_m3
+
+delta_AIC <- AIC_null - AIC_m3
+delta_AIC
+
+
+```
+
+### Ploting occupancy relationships with covariates
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: predictive dist to road
+
+predict_m2 <- cbind(
+  predict(occu.m2, 
+          newdata = data.frame(Dist_road = seq(min(site_cov$Dist_road), max(site_cov$Dist_road), by = 0.01)), 
+          type = "state"),
+  data.frame(Dist_road = seq(min(site_cov$Dist_road), max(site_cov$Dist_road), by = 0.01))
+)
+
+predict_m2 <- predict_m2 %>%
+  mutate(Dist_road_original = (Dist_road * dist_road_sd) + dist_road_mean)
+
+
+ggplot(data = predict_m2, aes(x = Dist_road_original, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
+  geom_line(color = "black") +
+  labs(x = "Distance to Road (m)", y = "Predicted Occupancy Probability") +
+  theme_classic()
+
+
+
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: predictive dist to village
+
+predict_m3_Dist <- cbind(predict(occu.m3,
+                                 newdata = data.frame(Dist_village = seq(min(site_cov$Dist_village, 
+                                                                             na.rm = TRUE),
+                                                                         max(site_cov$Dist_village, 
+                                                                             na.rm = TRUE), 
+                                                                         by = 0.01)),
+                                 type = "state"),
+                         data.frame(Dist_village = seq(min(site_cov$Dist_village, 
+                                                           na.rm = TRUE),
+                                                       max(site_cov$Dist_village, 
+                                                           na.rm = TRUE), 
+                                                       by = 0.01)))
+
+
+
+
+
+predict_m3_Dist <- predict_m3_Dist %>%
+  mutate(Dist_village_original = (Dist_village * dist_village_sd) + dist_village_mean)
+
+
+## ----plotrelationships----
+# Plot relationship with Dist_village
+ggplot(data = predict_m3_Dist, aes(x = Dist_village, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
+  stat_smooth(method = "loess", col = "black", se = FALSE) +
+  labs(x = "Distance to village (scaled)", y = "Predicted Occupancy Probability") +
+  theme_classic()
+
+ggplot(data = predict_m3_Dist, aes(x = Dist_village_original, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
+  stat_smooth(method = "loess", col = "black", se = FALSE) +
+  labs(x = "Distance to village", y = "Predicted Occupancy Probability") +
+  theme_classic()
+
+
+
+# Set up file output
+png("plots/Occupancy_vs_Distance_to_Village.png", 
+    width = 7, height = 5, units = "in", res = 300)
+# Final plot with unscaled values
+ggplot(predict_m3_Dist, aes(x = Dist_village_original, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "grey80", alpha = 0.5) +
+  geom_line(size = 1.2, color = "black") +
+  labs(
+    x = "Distance to Village (km)",
+    y = "Predicted Occupancy Probability"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "grey90"),
+    axis.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 12)
+  )
+
+dev.off()
+
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: predictive elevation
+
+predict_m1_Dist <- cbind(predict(occu.m1,
+                                 newdata = data.frame(Elevation = seq(min(site_cov$Elevation, 
+                                                                             na.rm = TRUE),
+                                                                         max(site_cov$Elevation, 
+                                                                             na.rm = TRUE), 
+                                                                         by = 0.01)),
+                                 type = "state"),
+                         data.frame(Elevation = seq(min(site_cov$Elevation, 
+                                                           na.rm = TRUE),
+                                                       max(site_cov$Elevation, 
+                                                           na.rm = TRUE), 
+                                                       by = 0.01)))
+
+
+
+
+
+predict_m1_Dist <- predict_m1_Dist %>%
+  mutate(Elevation_original = (Elevation * elevation_sd) + elevation_mean)
+
+
+## ----plotrelationships----
+# Plot relationship with Dist_village
+ggplot(data = predict_m1_Dist, aes(x =Elevation, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
+  stat_smooth(method = "loess", col = "black", se = FALSE) +
+  labs(x = "Elevation (scaled)", y = "Predicted Occupancy Probability") +
+  theme_classic()
+
+ggplot(data = predict_m1_Dist, aes(x = Elevation_original, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "gray") +
+  stat_smooth(method = "loess", col = "black", se = FALSE) +
+  labs(x = "Elevation (original scale)", y = "Predicted Occupancy Probability") +
+  theme_classic()
+
+```
