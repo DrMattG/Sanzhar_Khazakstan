@@ -1,0 +1,736 @@
+---
+title: "Monitoring brown bears in Kazakhstan: A pilot study from the Altai Mountain Region"
+format: html
+editor: visual
+---
+
+### Load the libraries
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: load libraries
+Sys.setlocale("LC_TIME", "C")# Change to English month labels
+library(tidyverse)
+library(lubridate)
+library(readr)
+library(tibble)
+library(MASS)
+library(scales)
+library(ggimage)
+library(patchwork)
+conflicted::conflicts_prefer(
+  dplyr::select,
+  dplyr::filter
+)
+```
+
+### Get the camera metadata
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: get the camera metadata
+# Data_for_model_new.xlsx
+
+camera_meta <- tribble(
+  ~Camera_ID, ~Location_Name, ~Lat, ~Long, ~Elevation, ~Dist_Road_km, ~Dist_Village_km, ~Time_Period,
+  
+  "KCH01", "Kuchiha-Popov", "N50° 26.234'", "E83° 51.965'", 1164, 6.7, 4.4,
+  "12 Apr - 18 Jun, 2019 / 11 Jul - 31 Dec, 2020 / 1 Jan - 9 May, 2021 / 24 Oct - 31 Dec, 2021 / 1 Jan - 21 May, 2022",
+  
+  "KCH02", "Spruce Ridge", "N50° 27.479'", "E83° 55.414'", 1079, 9.1, 10,
+  "14 Aug - 22 Sept, 2019 / 27 Oct - 31 Dec, 2019 / 1 Jan - 31 Dec, 2020 / 1 Jan - 4 May, 2021 / 11 Sept - 22 Sept, 2021",
+  
+  "KCH03", "Bear Hollow", "N50° 28.256'", "E83° 54.449'", 667, 9.2, 11,
+  "3 Aug - 21 Aug, 2019 / 22 Sept - 5 Oct, 2019 / 10 Feb - 31 Dec, 2020 / 1 Jan - 10 Jan, 2021 / 25 May - 31 Jul, 2021 / 22 Sept - 31 Dec, 2021 / 1 Jan - 31 Dec, 2022 / 1 Jan - 4 May, 2023",
+  
+  "KCH04", "Sosnovka Pass", "N50° 28.560'", "E83° 52.064'", 666, 8.0, 10.9,
+  "29 Aug - 9 Oct, 2019 / 31 Jul - 3 Oct, 2020",
+  
+  "KCH05", "Sosnovka Mount", "N50° 29.162'", "E83° 51.597'", 1478, 7.0, 9.9,
+  "1 Aug - 26 Dec, 2020 / 2 Jan - 31 Dec, 2021",
+  
+  "KCH06", "Vannochki", "N50° 29.204'", "E83° 51.324'", 1478, 8.8, 12.4,
+  "10 Oct - 24 Nov, 2019 / 29 Mar - 31 Dec, 2020 / 1 Jan - 5 Jan, 2021",
+  
+  "KCH07", "Glade Angry Bear", "N50° 27.172'", "E83° 53.190'", 984, 6.7, 8.7,
+  "4 Jul - 13 Oct, 2020 / 4 May - 27 Jul, 2021 / 10 Oct - 19 Nov, 2021 / 12 Feb - 3 Mar, 2022 / 23 Jul - 3 Sept, 2022 / 21 Jan - 4 May, 2023",
+  
+  "KCH08", "Privada", "N50° 27.102'", "E83° 53.024'", 970, 6.7, 8.7,
+  "23 Mar - 27 Apr, 2023",
+  
+  "KCH09", "Solt_lake_larch", "N50° 26.187'", "E83° 54.012'", 1080, 6.5, 1.0,
+  "4 Jul - 10 Oct, 2020 / 7 Nov - 2 Dec, 2020 / 10 Jan - 20 Dec, 2021 / 1 Jan - 22 Sept, 2022 / 21 Jan - 8 Feb, 2023",
+  
+  "KCH10", "Solt Lake Spruce", "N50° 27.364'", "E83° 54.215'", 891, 7.9, 9.3,
+  "13 May - 24 Dec, 2021"
+)
+
+```
+
+### Get the camera periods
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: get the camera periods
+#| 
+camera_periods <- camera_meta |> 
+  mutate(
+    Time_Period = str_replace_all(Time_Period, "\n", " "),
+    Time_Period = str_replace_all(Time_Period, "\\s+", " "),
+    Time_Period = str_replace_all(Time_Period, "–", "-")
+  ) |> 
+  separate_rows(Time_Period, sep = "/") |> 
+  mutate(Time_Period = str_trim(Time_Period))
+
+
+# Parse start and end dates for each deployment interval
+
+camera_periods_parsed <- camera_periods |> 
+  mutate(
+    year = str_extract(Time_Period, "\\d{4}"),
+    ## Split raw start / end
+    start_raw = str_trim(str_extract(Time_Period, "^[^-]+")),
+    end_raw   = str_trim(str_extract(Time_Period, "(?<=-).*")),
+    ## If end already contains a year, keep it
+    ## otherwise append extracted year
+    end_clean = if_else(
+      str_detect(end_raw, "\\d{4}"),
+      end_raw,
+      paste(end_raw, year)
+    ),
+    
+    start_clean = paste(start_raw, year),
+    
+    start_date = parse_date_time(
+      start_clean,
+      orders = c("d b Y", "d B Y")
+    ),
+    end_date = parse_date_time(
+      end_clean,
+      orders = c("d b Y", "d B Y")
+    )
+  ) 
+
+camera_periods_parsed<-camera_periods_parsed|> 
+  dplyr::select(Camera_ID, start_date, end_date)
+
+## Sanity check
+#stopifnot(all(!is.na(camera_periods_parsed$start_date)))
+#stopifnot(all(!is.na(camera_periods_parsed$end_date)))
+
+
+```
+
+### Expand to camera-days
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: get camera days
+
+camera_days <- camera_periods_parsed |> 
+  rowwise() |> 
+  mutate(date = list(seq(start_date, end_date, by = "day"))) |> 
+  unnest(date) |> 
+  ungroup() |> 
+  select(Camera_ID, date)
+
+```
+
+### Prepare the detections
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: get detections 
+
+Raw_Data_USED_AT<-read.csv("data/Raw_Data_USED_AT.csv")
+
+Raw_Data_USED_AT<-Raw_Data_USED_AT |> 
+  mutate(Species=str_trim(Species))
+
+detections <- Raw_Data_USED_AT |> 
+  mutate(
+    Date = mdy(Date)
+  ) |> 
+  distinct(`Camera.Number`, Date, Species)
+
+# Join detections to active camera-days
+
+detections_effort <- detections |> 
+  inner_join(
+    camera_days,
+    by = c("Camera.Number" = "Camera_ID",
+           "Date" = "date")
+  )
+effort <- camera_days |>
+  count(Camera_ID, name = "camera_days")
+
+```
+
+### Calculate captures and catch-per-unit-effort
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: Calculate captures and CPUE
+
+captures <- detections_effort |> 
+  count(`Camera.Number`, Species, name = "n_captures")
+
+cpue <- captures |> 
+  left_join(
+    effort,
+    by = c("Camera.Number" = "Camera_ID")
+  ) |> 
+  mutate(
+    cpue = n_captures / camera_days
+  )
+
+## Species-level mean CPUE across cameras
+cpue_species_summary <- cpue |> 
+  group_by(Species) |> 
+  summarise(
+    mean_cpue = mean(cpue),
+    sd_cpue   = sd(cpue),
+    n_cameras = n(),
+    .groups = "drop"
+  )
+
+
+```
+
+### Figure 3
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: fig3
+
+monthly_effort <- camera_days |> 
+  mutate(month = month(date)) |> 
+  count(Camera_ID, month, name = "camera_days")
+
+monthly_detections <- detections_effort |> 
+  mutate(month = month(Date)) |> 
+  count(`Camera.Number`, Species, month, name = "detections")
+
+monthly_rates <- monthly_detections |> 
+  left_join(
+    monthly_effort,
+    by = c("Camera.Number" = "Camera_ID", "month")
+  ) |> 
+  mutate(rate_100 = detections / camera_days * 100)
+
+
+
+monthly_plot_data <- monthly_rates |>
+  filter(Species %in% c("bear", "moose", "red deer", "roe deer")) |>
+  mutate(
+    month = factor(
+      month,
+      levels = 1:12,
+      labels = month.abb
+    ),
+    Species = factor(
+      Species,
+      levels = c("bear", "moose", "red deer", "roe deer")
+    )
+  )
+
+ggplot(
+  monthly_plot_data,
+  aes(month, rate_100, group = Species, colour = Species)
+) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1) +
+  stat_summary(fun = mean, geom = "point", size = 2.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  labs(
+    x = NULL,
+    y = "Detections per 100 camera-days",
+    colour = "Species"
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = "top",
+    legend.title = element_text(face = "bold")
+  )
+
+ggsave(
+  "plots/monthly.png",
+  width = 18,
+  height = 24,
+  units = "cm",
+  dpi = 300
+)
+
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: fig3 weekly detections
+
+weekly_detections <- detections_effort |>
+  mutate(
+    year = year(Date),
+    week = isoweek(Date)
+  ) |>
+  count(Species, year, week, name = "total_detections")
+
+weekly_effort <- camera_days |>
+  mutate(
+    year = year(date),
+    week = isoweek(date)
+  ) |>
+  distinct(Camera_ID, year, week) |>
+  count(year, week, name = "n_active_cameras")
+
+
+weekly_rates <- weekly_detections |>
+  left_join(weekly_effort, by = c("year", "week")) |>
+  mutate(
+    detections_per_camera = total_detections / n_active_cameras,
+    week_date = as.Date(paste0(year, "-01-01")) + weeks(week - 1)
+  )
+
+
+weekly_rates <- weekly_rates |>
+  filter(Species %in% c("bear", "moose", "red deer", "roe deer")) |>
+  mutate(
+    Species = factor(
+      Species,
+      levels = c("bear", "moose", "red deer", "roe deer"),
+      labels = c(
+        "Eastern Siberian brown bear",
+        "Moose",
+        "Caspian red deer",
+        "Siberian roe deer"
+      )
+    )
+  )
+
+
+species_icons <- tibble(
+  Species = c(
+    "Eastern Siberian brown bear",
+    "Moose",
+    "Caspian red deer",
+    "Siberian roe deer"
+  ),
+  img = c(
+    "images/bear.png",
+    "images/moose.png",
+    "images/red_deer.png",
+    "images/roe_deer.png"
+  )
+)
+
+
+icon_x <- min(weekly_rates$week_date, na.rm = TRUE)+60
+
+icon_pos <- weekly_rates |>
+  group_by(Species) |>
+  summarise(
+    y = max(detections_per_camera, na.rm = TRUE) * 0.8,
+    .groups = "drop"
+  ) |>
+  mutate(x = icon_x) |>
+  left_join(species_icons, by = "Species")
+
+
+ggplot(weekly_rates,
+       aes(x = week_date, y = detections_per_camera)) +
+  geom_col(fill = "grey30", width = 5) +
+  geom_image(
+    data = icon_pos,
+    aes(x = x, y = y, image = img),
+    inherit.aes = FALSE,
+    size = 0.5
+  ) +
+  facet_wrap(~ Species, ncol = 1, scales = "free_y") +
+  scale_x_date(
+  date_breaks = "3 months",
+  date_labels = "%b %Y",
+  expand = expansion(mult = c(0.01, 0.02))
+) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = "Year",
+    y = "Detections per active camera per week"
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold"),
+    axis.title.y = element_text(margin = margin(r = 8)),
+  axis.text.x = element_text(angle = 45, hjust = 1)
+)
+
+ggsave(
+  "plots/weekly_detections_per_active_camera.png",
+  width = 18,
+  height = 24,
+  units = "cm",
+  dpi = 300
+)
+
+```
+
+### Figure 4
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: fig4 hourly detections
+
+activity_data <- Raw_Data_USED_AT |>
+  mutate(
+    Date_parsed = mdy(Date),
+    Time_trim   = str_trim(Time),
+    Species     = str_squish(Species),
+
+    datetime = parse_date_time(
+      paste(Date_parsed, Time_trim),
+      orders = c("ymd IMS p", "ymd IM p"),
+      tz = "UTC"   # or "UTC" if cameras were set to UTC
+    ),
+
+    hour = hour(datetime)
+  )
+
+hourly_activity <- activity_data |>
+  count(Species, hour, name = "n_detections")
+
+
+hourly_activity <- hourly_activity |>
+  filter(Species %in% c("bear", "moose", "red deer", "roe deer")) |> 
+  mutate(
+    Species = factor(
+      Species,
+      levels = c("bear", "moose", "red deer", "roe deer"),
+      labels = c(
+        "Eastern Siberian brown bear",
+        "Moose",
+        "Caspian red deer",
+        "Siberian roe deer"
+      )
+    )
+  )
+
+
+species_icons <- tibble(
+  Species = c(
+    "Eastern Siberian brown bear",
+    "Moose",
+    "Caspian red deer",
+    "Siberian roe deer"
+  ),
+  img = c(
+    "images/bear.png",
+    "images/moose.png",
+    "images/red_deer.png",
+    "images/roe_deer.png"
+  )
+)
+
+
+icon_x <- 1.1   # early morning, visually clean
+
+icon_pos <- hourly_activity |>
+  group_by(Species) |>
+  summarise(
+    y = max(n_detections, na.rm = TRUE) * 1.2,
+    .groups = "drop"
+  ) |>
+  mutate(x = icon_x) |>
+  left_join(species_icons, by = "Species")
+
+
+p_activity <- ggplot(hourly_activity,
+                     aes(x = hour, y = n_detections)) +
+  geom_col(fill = "grey30", width = 0.9) +
+  geom_image(
+    data = icon_pos,
+    aes(x = x, y = y, image = img),
+    inherit.aes = FALSE,
+    size = 0.3
+  ) +
+  facet_wrap(~ Species, ncol = 1, scales = "free_y") +
+  scale_x_continuous(
+    breaks = seq(0, 23, by = 3),
+    limits = c(0, 23),
+    expand = expansion(mult = c(0.01, 0.02))
+  ) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.3))
+  ) +
+  coord_cartesian(clip = "off") +
+  labs(
+    x = "Hour of day",
+    y = "Number of detection events"
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold"),
+    axis.title.y = element_text(margin = margin(r = 8))
+  )
+
+
+
+ggsave(
+  "plots/hourly_detections_per_active_camera.png",
+  plot=p_activity,
+  width = 18,
+  height = 24,
+  units = "cm",
+  dpi = 300
+)
+
+
+```
+
+### Figure 5
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: fig5
+
+## Figure  models
+
+library(MASS)
+
+bear_data <- detections_effort |> 
+  filter(Species == "bear") |> 
+  count(`Camera.Number`, name = "detections") |> 
+  left_join(effort, by = c("Camera.Number" = "Camera_ID")) |> 
+  left_join(camera_meta, by = c("Camera.Number" = "Camera_ID"))
+
+m_bear <- glm.nb(
+  detections ~ Dist_Road_km + Dist_Village_km + Elevation +
+    offset(log(camera_days)),
+  data = bear_data
+)
+
+summary(m_bear)
+
+
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: fig5 make_prediction
+
+make_prediction_df <- function(var, data, model, n = 100) {
+  
+  newdat <- data.frame(
+    Dist_Road_km    = mean(data$Dist_Road_km),
+    Dist_Village_km = mean(data$Dist_Village_km),
+    Elevation       = mean(data$Elevation),
+    camera_days     = 100
+  )
+  
+  newdat <- newdat[rep(1, n), ]
+  newdat[[var]] <- seq(min(data[[var]]), max(data[[var]]), length.out = n)
+  
+  preds <- predict(
+    model,
+    newdata = newdat,
+    type = "link",
+    se.fit = TRUE
+  )
+  
+  newdat |>
+    mutate(
+      fit = exp(preds$fit),
+      lwr = exp(preds$fit - 1.96 * preds$se.fit),
+      upr = exp(preds$fit + 1.96 * preds$se.fit),
+      rate_100 = fit,
+      lwr_100  = lwr,
+      upr_100  = upr
+    )
+}
+
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: fig 5 make predictions
+
+pred_road <- make_prediction_df("Dist_Road_km", bear_data, m_bear) |>
+  mutate(variable = "Distance to road (km)",
+         x = Dist_Road_km)
+
+pred_village <- make_prediction_df("Dist_Village_km", bear_data, m_bear) |>
+  mutate(variable = "Distance to village (km)",
+         x = Dist_Village_km)
+
+pred_elev <- make_prediction_df("Elevation", bear_data, m_bear) |>
+  mutate(variable = "Elevation (m)",
+         x = Elevation)
+
+pred_all <- bind_rows(pred_road, pred_village, pred_elev)
+
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| label: fig5 plots
+
+theme_pub <- theme_bw(base_size = 11) +
+  theme(
+    panel.border = element_blank(),
+    axis.line = element_line(colour = "black"),
+    axis.ticks = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.title.y = element_text(margin = margin(r = 8))
+  )
+
+
+
+p_dist_road <- ggplot(
+  filter(pred_all, variable == "Distance to road (km)"),
+  aes(x = x, y = rate_100)
+) +
+  geom_ribbon(
+    aes(ymin = lwr_100, ymax = upr_100),
+    fill = "grey75",
+    alpha = 0.4
+  ) +
+  geom_line(colour = "black", linewidth = 0.9) +
+  labs(
+    x = "Distance to road (km)",
+    y = "Predicted detections per 100 camera-days"
+  ) +
+  theme_pub
+
+p_dist_village <- ggplot(
+  filter(pred_all, variable == "Distance to village (km)"),
+  aes(x = x, y = rate_100)
+) +
+  geom_ribbon(
+    aes(ymin = lwr_100, ymax = upr_100),
+    fill = "grey75",
+    alpha = 0.4
+  ) +
+  geom_line(colour = "black", linewidth = 0.9) +
+  labs(
+    x = "Distance to village (km)",
+    y = "Predicted detections per 100 camera-days"
+  ) +
+  theme_pub
+
+p_elev <- ggplot(
+  filter(pred_all, variable == "Elevation (m)"),
+  aes(x = x, y = rate_100)
+) +
+  geom_ribbon(
+    aes(ymin = lwr_100, ymax = upr_100),
+    fill = "grey75",
+    alpha = 0.4
+  ) +
+  geom_line(colour = "black", linewidth = 0.9) +
+  labs(
+    x = "Elevation (m)",
+    y = "Predicted detections per 100 camera-days"
+  ) +
+  theme_pub
+
+p_dist_village <- p_dist_village +
+  theme(axis.title.y = element_blank())
+
+p_elev <- p_elev +
+  theme(axis.title.y = element_blank())
+p_combined <- p_dist_road + p_dist_village + p_elev
+
+p_combined
+
+
+ggsave(
+  "plots/bear_predictions_patchwork.png",
+  plot = p_combined,
+  width = 30,
+  height = 15,
+  units = "cm",
+  dpi = 300
+)
+
+
+
+
+```
+
+### Session Information
+
+```{r}
+# sessionInfo()
+# R version 4.4.3 (2025-02-28 ucrt)
+# Platform: x86_64-w64-mingw32/x64
+# Running under: Windows 11 x64 (build 26200)
+# 
+# Matrix products: default
+# 
+# 
+# locale:
+# [1] LC_COLLATE=nb-NO.utf-8  LC_CTYPE=nb-NO.utf-8    LC_MONETARY=nb-NO.utf-8
+# [4] LC_NUMERIC=C            LC_TIME=C              
+# 
+# time zone: Europe/Oslo
+# tzcode source: internal
+# 
+# attached base packages:
+# [1] stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# other attached packages:
+#  [1] patchwork_1.3.2 ggimage_0.3.4   scales_1.4.0    MASS_7.3-65    
+#  [5] lubridate_1.9.4 forcats_1.0.0   stringr_1.5.2   dplyr_1.1.4    
+#  [9] purrr_1.0.4     readr_2.1.5     tidyr_1.3.1     tibble_3.3.0   
+# [13] ggplot2_4.0.0   tidyverse_2.0.0
+# 
+# loaded via a namespace (and not attached):
+#  [1] yulab.utils_0.2.1       rappdirs_0.3.3          generics_0.1.4         
+#  [4] fontLiberation_0.1.0    ggplotify_0.1.3         stringi_1.8.7          
+#  [7] hms_1.1.4               digest_0.6.37           magrittr_2.0.3         
+# [10] evaluate_1.0.5          grid_4.4.3              timechange_0.3.0       
+# [13] RColorBrewer_1.1-3      fastmap_1.2.0           jsonlite_2.0.0         
+# [16] conflicted_1.2.0        fontBitstreamVera_0.1.1 textshaping_1.0.4      
+# [19] cli_3.6.5               rlang_1.1.6             fontquiver_0.2.1       
+# [22] cachem_1.1.0            withr_3.0.2             yaml_2.3.10            
+# [25] gdtools_0.4.4           tools_4.4.3             tzdb_0.5.0             
+# [28] memoise_2.0.1           gridGraphics_0.5-1      vctrs_0.6.5            
+# [31] R6_2.6.1                magick_2.9.0            lifecycle_1.0.4        
+# [34] fs_1.6.6                htmlwidgets_1.6.4       ggfun_0.2.0            
+# [37] ragg_1.5.0              pkgconfig_2.0.3         pillar_1.11.1          
+# [40] gtable_0.3.6            glue_1.8.0              Rcpp_1.1.0             
+# [43] systemfonts_1.3.1       xfun_0.53               tidyselect_1.2.1       
+# [46] rstudioapi_0.17.1       ggiraph_0.9.2           knitr_1.50             
+# [49] farver_2.1.2            htmltools_0.5.8.1       labeling_0.4.3         
+# [52] rmarkdown_2.30          compiler_4.4.3          S7_0.2.0               
+```

@@ -1,0 +1,952 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Monitoring brown bears in Kazakhstan: A pilot study from the Altai Mountain Region},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Monitoring brown bears in Kazakhstan: A pilot study from the
+Altai Mountain Region}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+
+\subsubsection{Load the libraries}\label{load-the-libraries}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{Sys.setlocale}\NormalTok{(}\StringTok{"LC\_TIME"}\NormalTok{, }\StringTok{"C"}\NormalTok{)}\CommentTok{\# Change to English month labels}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] "C"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(lubridate)}
+\FunctionTok{library}\NormalTok{(readr)}
+\FunctionTok{library}\NormalTok{(tibble)}
+\FunctionTok{library}\NormalTok{(MASS)}
+\FunctionTok{library}\NormalTok{(scales)}
+\FunctionTok{library}\NormalTok{(ggimage)}
+\FunctionTok{library}\NormalTok{(patchwork)}
+\NormalTok{conflicted}\SpecialCharTok{::}\FunctionTok{conflicts\_prefer}\NormalTok{(}
+\NormalTok{  dplyr}\SpecialCharTok{::}\NormalTok{select,}
+\NormalTok{  dplyr}\SpecialCharTok{::}\NormalTok{filter}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Get the camera metadata}\label{get-the-camera-metadata}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Data\_for\_model\_new.xlsx}
+
+\NormalTok{camera\_meta }\OtherTok{\textless{}{-}} \FunctionTok{tribble}\NormalTok{(}
+  \SpecialCharTok{\textasciitilde{}}\NormalTok{Camera\_ID, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Location\_Name, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Lat, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Long, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Elevation, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Dist\_Road\_km, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Dist\_Village\_km, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Time\_Period,}
+  
+  \StringTok{"KCH01"}\NormalTok{, }\StringTok{"Kuchiha{-}Popov"}\NormalTok{, }\StringTok{"N50° 26.234\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 51.965\textquotesingle{}"}\NormalTok{, }\DecValTok{1164}\NormalTok{, }\FloatTok{6.7}\NormalTok{, }\FloatTok{4.4}\NormalTok{,}
+  \StringTok{"12 Apr {-} 18 Jun, 2019 / 11 Jul {-} 31 Dec, 2020 / 1 Jan {-} 9 May, 2021 / 24 Oct {-} 31 Dec, 2021 / 1 Jan {-} 21 May, 2022"}\NormalTok{,}
+  
+  \StringTok{"KCH02"}\NormalTok{, }\StringTok{"Spruce Ridge"}\NormalTok{, }\StringTok{"N50° 27.479\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 55.414\textquotesingle{}"}\NormalTok{, }\DecValTok{1079}\NormalTok{, }\FloatTok{9.1}\NormalTok{, }\DecValTok{10}\NormalTok{,}
+  \StringTok{"14 Aug {-} 22 Sept, 2019 / 27 Oct {-} 31 Dec, 2019 / 1 Jan {-} 31 Dec, 2020 / 1 Jan {-} 4 May, 2021 / 11 Sept {-} 22 Sept, 2021"}\NormalTok{,}
+  
+  \StringTok{"KCH03"}\NormalTok{, }\StringTok{"Bear Hollow"}\NormalTok{, }\StringTok{"N50° 28.256\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 54.449\textquotesingle{}"}\NormalTok{, }\DecValTok{667}\NormalTok{, }\FloatTok{9.2}\NormalTok{, }\DecValTok{11}\NormalTok{,}
+  \StringTok{"3 Aug {-} 21 Aug, 2019 / 22 Sept {-} 5 Oct, 2019 / 10 Feb {-} 31 Dec, 2020 / 1 Jan {-} 10 Jan, 2021 / 25 May {-} 31 Jul, 2021 / 22 Sept {-} 31 Dec, 2021 / 1 Jan {-} 31 Dec, 2022 / 1 Jan {-} 4 May, 2023"}\NormalTok{,}
+  
+  \StringTok{"KCH04"}\NormalTok{, }\StringTok{"Sosnovka Pass"}\NormalTok{, }\StringTok{"N50° 28.560\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 52.064\textquotesingle{}"}\NormalTok{, }\DecValTok{666}\NormalTok{, }\FloatTok{8.0}\NormalTok{, }\FloatTok{10.9}\NormalTok{,}
+  \StringTok{"29 Aug {-} 9 Oct, 2019 / 31 Jul {-} 3 Oct, 2020"}\NormalTok{,}
+  
+  \StringTok{"KCH05"}\NormalTok{, }\StringTok{"Sosnovka Mount"}\NormalTok{, }\StringTok{"N50° 29.162\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 51.597\textquotesingle{}"}\NormalTok{, }\DecValTok{1478}\NormalTok{, }\FloatTok{7.0}\NormalTok{, }\FloatTok{9.9}\NormalTok{,}
+  \StringTok{"1 Aug {-} 26 Dec, 2020 / 2 Jan {-} 31 Dec, 2021"}\NormalTok{,}
+  
+  \StringTok{"KCH06"}\NormalTok{, }\StringTok{"Vannochki"}\NormalTok{, }\StringTok{"N50° 29.204\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 51.324\textquotesingle{}"}\NormalTok{, }\DecValTok{1478}\NormalTok{, }\FloatTok{8.8}\NormalTok{, }\FloatTok{12.4}\NormalTok{,}
+  \StringTok{"10 Oct {-} 24 Nov, 2019 / 29 Mar {-} 31 Dec, 2020 / 1 Jan {-} 5 Jan, 2021"}\NormalTok{,}
+  
+  \StringTok{"KCH07"}\NormalTok{, }\StringTok{"Glade Angry Bear"}\NormalTok{, }\StringTok{"N50° 27.172\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 53.190\textquotesingle{}"}\NormalTok{, }\DecValTok{984}\NormalTok{, }\FloatTok{6.7}\NormalTok{, }\FloatTok{8.7}\NormalTok{,}
+  \StringTok{"4 Jul {-} 13 Oct, 2020 / 4 May {-} 27 Jul, 2021 / 10 Oct {-} 19 Nov, 2021 / 12 Feb {-} 3 Mar, 2022 / 23 Jul {-} 3 Sept, 2022 / 21 Jan {-} 4 May, 2023"}\NormalTok{,}
+  
+  \StringTok{"KCH08"}\NormalTok{, }\StringTok{"Privada"}\NormalTok{, }\StringTok{"N50° 27.102\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 53.024\textquotesingle{}"}\NormalTok{, }\DecValTok{970}\NormalTok{, }\FloatTok{6.7}\NormalTok{, }\FloatTok{8.7}\NormalTok{,}
+  \StringTok{"23 Mar {-} 27 Apr, 2023"}\NormalTok{,}
+  
+  \StringTok{"KCH09"}\NormalTok{, }\StringTok{"Solt\_lake\_larch"}\NormalTok{, }\StringTok{"N50° 26.187\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 54.012\textquotesingle{}"}\NormalTok{, }\DecValTok{1080}\NormalTok{, }\FloatTok{6.5}\NormalTok{, }\FloatTok{1.0}\NormalTok{,}
+  \StringTok{"4 Jul {-} 10 Oct, 2020 / 7 Nov {-} 2 Dec, 2020 / 10 Jan {-} 20 Dec, 2021 / 1 Jan {-} 22 Sept, 2022 / 21 Jan {-} 8 Feb, 2023"}\NormalTok{,}
+  
+  \StringTok{"KCH10"}\NormalTok{, }\StringTok{"Solt Lake Spruce"}\NormalTok{, }\StringTok{"N50° 27.364\textquotesingle{}"}\NormalTok{, }\StringTok{"E83° 54.215\textquotesingle{}"}\NormalTok{, }\DecValTok{891}\NormalTok{, }\FloatTok{7.9}\NormalTok{, }\FloatTok{9.3}\NormalTok{,}
+  \StringTok{"13 May {-} 24 Dec, 2021"}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Get the camera periods}\label{get-the-camera-periods}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{camera\_periods }\OtherTok{\textless{}{-}}\NormalTok{ camera\_meta }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Time\_Period =} \FunctionTok{str\_replace\_all}\NormalTok{(Time\_Period, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{, }\StringTok{" "}\NormalTok{),}
+    \AttributeTok{Time\_Period =} \FunctionTok{str\_replace\_all}\NormalTok{(Time\_Period, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{s+"}\NormalTok{, }\StringTok{" "}\NormalTok{),}
+    \AttributeTok{Time\_Period =} \FunctionTok{str\_replace\_all}\NormalTok{(Time\_Period, }\StringTok{"–"}\NormalTok{, }\StringTok{"{-}"}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{separate\_rows}\NormalTok{(Time\_Period, }\AttributeTok{sep =} \StringTok{"/"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Time\_Period =} \FunctionTok{str\_trim}\NormalTok{(Time\_Period))}
+
+
+\CommentTok{\# Parse start and end dates for each deployment interval}
+
+\NormalTok{camera\_periods\_parsed }\OtherTok{\textless{}{-}}\NormalTok{ camera\_periods }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{year =} \FunctionTok{str\_extract}\NormalTok{(Time\_Period, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d\{4\}"}\NormalTok{),}
+    \DocumentationTok{\#\# Split raw start / end}
+    \AttributeTok{start\_raw =} \FunctionTok{str\_trim}\NormalTok{(}\FunctionTok{str\_extract}\NormalTok{(Time\_Period, }\StringTok{"\^{}[\^{}{-}]+"}\NormalTok{)),}
+    \AttributeTok{end\_raw   =} \FunctionTok{str\_trim}\NormalTok{(}\FunctionTok{str\_extract}\NormalTok{(Time\_Period, }\StringTok{"(?\textless{}={-}).*"}\NormalTok{)),}
+    \DocumentationTok{\#\# If end already contains a year, keep it}
+    \DocumentationTok{\#\# otherwise append extracted year}
+    \AttributeTok{end\_clean =} \FunctionTok{if\_else}\NormalTok{(}
+      \FunctionTok{str\_detect}\NormalTok{(end\_raw, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d\{4\}"}\NormalTok{),}
+\NormalTok{      end\_raw,}
+      \FunctionTok{paste}\NormalTok{(end\_raw, year)}
+\NormalTok{    ),}
+    
+    \AttributeTok{start\_clean =} \FunctionTok{paste}\NormalTok{(start\_raw, year),}
+    
+    \AttributeTok{start\_date =} \FunctionTok{parse\_date\_time}\NormalTok{(}
+\NormalTok{      start\_clean,}
+      \AttributeTok{orders =} \FunctionTok{c}\NormalTok{(}\StringTok{"d b Y"}\NormalTok{, }\StringTok{"d B Y"}\NormalTok{)}
+\NormalTok{    ),}
+    \AttributeTok{end\_date =} \FunctionTok{parse\_date\_time}\NormalTok{(}
+\NormalTok{      end\_clean,}
+      \AttributeTok{orders =} \FunctionTok{c}\NormalTok{(}\StringTok{"d b Y"}\NormalTok{, }\StringTok{"d B Y"}\NormalTok{)}
+\NormalTok{    )}
+\NormalTok{  ) }
+
+\NormalTok{camera\_periods\_parsed}\OtherTok{\textless{}{-}}\NormalTok{camera\_periods\_parsed}\SpecialCharTok{|\textgreater{}} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(Camera\_ID, start\_date, end\_date)}
+
+\DocumentationTok{\#\# Sanity check}
+\CommentTok{\#stopifnot(all(!is.na(camera\_periods\_parsed$start\_date)))}
+\CommentTok{\#stopifnot(all(!is.na(camera\_periods\_parsed$end\_date)))}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Expand to camera-days}\label{expand-to-camera-days}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{camera\_days }\OtherTok{\textless{}{-}}\NormalTok{ camera\_periods\_parsed }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{rowwise}\NormalTok{() }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{date =} \FunctionTok{list}\NormalTok{(}\FunctionTok{seq}\NormalTok{(start\_date, end\_date, }\AttributeTok{by =} \StringTok{"day"}\NormalTok{))) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{unnest}\NormalTok{(date) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{select}\NormalTok{(Camera\_ID, date)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Prepare the detections}\label{prepare-the-detections}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Raw\_Data\_USED\_AT}\OtherTok{\textless{}{-}}\FunctionTok{read.csv}\NormalTok{(}\StringTok{"data/Raw\_Data\_USED\_AT.csv"}\NormalTok{)}
+
+\NormalTok{Raw\_Data\_USED\_AT}\OtherTok{\textless{}{-}}\NormalTok{Raw\_Data\_USED\_AT }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Species=}\FunctionTok{str\_trim}\NormalTok{(Species))}
+
+\NormalTok{detections }\OtherTok{\textless{}{-}}\NormalTok{ Raw\_Data\_USED\_AT }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Date =} \FunctionTok{mdy}\NormalTok{(Date)}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{distinct}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Camera.Number}\StringTok{\textasciigrave{}}\NormalTok{, Date, Species)}
+
+\CommentTok{\# Join detections to active camera{-}days}
+
+\NormalTok{detections\_effort }\OtherTok{\textless{}{-}}\NormalTok{ detections }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{inner\_join}\NormalTok{(}
+\NormalTok{    camera\_days,}
+    \AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"Camera.Number"} \OtherTok{=} \StringTok{"Camera\_ID"}\NormalTok{,}
+           \StringTok{"Date"} \OtherTok{=} \StringTok{"date"}\NormalTok{)}
+\NormalTok{  )}
+\NormalTok{effort }\OtherTok{\textless{}{-}}\NormalTok{ camera\_days }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{count}\NormalTok{(Camera\_ID, }\AttributeTok{name =} \StringTok{"camera\_days"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Calculate captures and
+catch-per-unit-effort}\label{calculate-captures-and-catch-per-unit-effort}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{captures }\OtherTok{\textless{}{-}}\NormalTok{ detections\_effort }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{count}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Camera.Number}\StringTok{\textasciigrave{}}\NormalTok{, Species, }\AttributeTok{name =} \StringTok{"n\_captures"}\NormalTok{)}
+
+\NormalTok{cpue }\OtherTok{\textless{}{-}}\NormalTok{ captures }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{left\_join}\NormalTok{(}
+\NormalTok{    effort,}
+    \AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"Camera.Number"} \OtherTok{=} \StringTok{"Camera\_ID"}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{cpue =}\NormalTok{ n\_captures }\SpecialCharTok{/}\NormalTok{ camera\_days}
+\NormalTok{  )}
+
+\DocumentationTok{\#\# Species{-}level mean CPUE across cameras}
+\NormalTok{cpue\_species\_summary }\OtherTok{\textless{}{-}}\NormalTok{ cpue }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{group\_by}\NormalTok{(Species) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{mean\_cpue =} \FunctionTok{mean}\NormalTok{(cpue),}
+    \AttributeTok{sd\_cpue   =} \FunctionTok{sd}\NormalTok{(cpue),}
+    \AttributeTok{n\_cameras =} \FunctionTok{n}\NormalTok{(),}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Figure 3}\label{figure-3}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monthly\_effort }\OtherTok{\textless{}{-}}\NormalTok{ camera\_days }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{month =} \FunctionTok{month}\NormalTok{(date)) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{count}\NormalTok{(Camera\_ID, month, }\AttributeTok{name =} \StringTok{"camera\_days"}\NormalTok{)}
+
+\NormalTok{monthly\_detections }\OtherTok{\textless{}{-}}\NormalTok{ detections\_effort }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{month =} \FunctionTok{month}\NormalTok{(Date)) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{count}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Camera.Number}\StringTok{\textasciigrave{}}\NormalTok{, Species, month, }\AttributeTok{name =} \StringTok{"detections"}\NormalTok{)}
+
+\NormalTok{monthly\_rates }\OtherTok{\textless{}{-}}\NormalTok{ monthly\_detections }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{left\_join}\NormalTok{(}
+\NormalTok{    monthly\_effort,}
+    \AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"Camera.Number"} \OtherTok{=} \StringTok{"Camera\_ID"}\NormalTok{, }\StringTok{"month"}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{rate\_100 =}\NormalTok{ detections }\SpecialCharTok{/}\NormalTok{ camera\_days }\SpecialCharTok{*} \DecValTok{100}\NormalTok{)}
+
+
+
+\NormalTok{monthly\_plot\_data }\OtherTok{\textless{}{-}}\NormalTok{ monthly\_rates }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(Species }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"bear"}\NormalTok{, }\StringTok{"moose"}\NormalTok{, }\StringTok{"red deer"}\NormalTok{, }\StringTok{"roe deer"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{month =} \FunctionTok{factor}\NormalTok{(}
+\NormalTok{      month,}
+      \AttributeTok{levels =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{12}\NormalTok{,}
+      \AttributeTok{labels =}\NormalTok{ month.abb}
+\NormalTok{    ),}
+    \AttributeTok{Species =} \FunctionTok{factor}\NormalTok{(}
+\NormalTok{      Species,}
+      \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"bear"}\NormalTok{, }\StringTok{"moose"}\NormalTok{, }\StringTok{"red deer"}\NormalTok{, }\StringTok{"roe deer"}\NormalTok{)}
+\NormalTok{    )}
+\NormalTok{  )}
+
+\FunctionTok{ggplot}\NormalTok{(}
+\NormalTok{  monthly\_plot\_data,}
+  \FunctionTok{aes}\NormalTok{(month, rate\_100, }\AttributeTok{group =}\NormalTok{ Species, }\AttributeTok{colour =}\NormalTok{ Species)}
+\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ mean, }\AttributeTok{geom =} \StringTok{"line"}\NormalTok{, }\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{stat\_summary}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ mean, }\AttributeTok{geom =} \StringTok{"point"}\NormalTok{, }\AttributeTok{size =} \FloatTok{2.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_colour\_brewer}\NormalTok{(}\AttributeTok{palette =} \StringTok{"Dark2"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Detections per 100 camera{-}days"}\NormalTok{,}
+    \AttributeTok{colour =} \StringTok{"Species"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_bw}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{11}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}
+    \AttributeTok{panel.grid.minor =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{legend.position =} \StringTok{"top"}\NormalTok{,}
+    \AttributeTok{legend.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face =} \StringTok{"bold"}\NormalTok{)}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Code_for_Monitoring_bears_in_Kazakhstan_files/figure-pdf/fig3-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggsave}\NormalTok{(}
+  \StringTok{"plots/monthly.png"}\NormalTok{,}
+  \AttributeTok{width =} \DecValTok{18}\NormalTok{,}
+  \AttributeTok{height =} \DecValTok{24}\NormalTok{,}
+  \AttributeTok{units =} \StringTok{"cm"}\NormalTok{,}
+  \AttributeTok{dpi =} \DecValTok{300}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{weekly\_detections }\OtherTok{\textless{}{-}}\NormalTok{ detections\_effort }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{year =} \FunctionTok{year}\NormalTok{(Date),}
+    \AttributeTok{week =} \FunctionTok{isoweek}\NormalTok{(Date)}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{count}\NormalTok{(Species, year, week, }\AttributeTok{name =} \StringTok{"total\_detections"}\NormalTok{)}
+
+\NormalTok{weekly\_effort }\OtherTok{\textless{}{-}}\NormalTok{ camera\_days }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{year =} \FunctionTok{year}\NormalTok{(date),}
+    \AttributeTok{week =} \FunctionTok{isoweek}\NormalTok{(date)}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{distinct}\NormalTok{(Camera\_ID, year, week) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{count}\NormalTok{(year, week, }\AttributeTok{name =} \StringTok{"n\_active\_cameras"}\NormalTok{)}
+
+
+\NormalTok{weekly\_rates }\OtherTok{\textless{}{-}}\NormalTok{ weekly\_detections }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{left\_join}\NormalTok{(weekly\_effort, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{, }\StringTok{"week"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{detections\_per\_camera =}\NormalTok{ total\_detections }\SpecialCharTok{/}\NormalTok{ n\_active\_cameras,}
+    \AttributeTok{week\_date =} \FunctionTok{as.Date}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(year, }\StringTok{"{-}01{-}01"}\NormalTok{)) }\SpecialCharTok{+} \FunctionTok{weeks}\NormalTok{(week }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{  )}
+
+
+\NormalTok{weekly\_rates }\OtherTok{\textless{}{-}}\NormalTok{ weekly\_rates }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(Species }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"bear"}\NormalTok{, }\StringTok{"moose"}\NormalTok{, }\StringTok{"red deer"}\NormalTok{, }\StringTok{"roe deer"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Species =} \FunctionTok{factor}\NormalTok{(}
+\NormalTok{      Species,}
+      \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"bear"}\NormalTok{, }\StringTok{"moose"}\NormalTok{, }\StringTok{"red deer"}\NormalTok{, }\StringTok{"roe deer"}\NormalTok{),}
+      \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+        \StringTok{"Eastern Siberian brown bear"}\NormalTok{,}
+        \StringTok{"Moose"}\NormalTok{,}
+        \StringTok{"Caspian red deer"}\NormalTok{,}
+        \StringTok{"Siberian roe deer"}
+\NormalTok{      )}
+\NormalTok{    )}
+\NormalTok{  )}
+
+
+\NormalTok{species\_icons }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{Species =} \FunctionTok{c}\NormalTok{(}
+    \StringTok{"Eastern Siberian brown bear"}\NormalTok{,}
+    \StringTok{"Moose"}\NormalTok{,}
+    \StringTok{"Caspian red deer"}\NormalTok{,}
+    \StringTok{"Siberian roe deer"}
+\NormalTok{  ),}
+  \AttributeTok{img =} \FunctionTok{c}\NormalTok{(}
+    \StringTok{"images/bear.png"}\NormalTok{,}
+    \StringTok{"images/moose.png"}\NormalTok{,}
+    \StringTok{"images/red\_deer.png"}\NormalTok{,}
+    \StringTok{"images/roe\_deer.png"}
+\NormalTok{  )}
+\NormalTok{)}
+
+
+\NormalTok{icon\_x }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(weekly\_rates}\SpecialCharTok{$}\NormalTok{week\_date, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}\SpecialCharTok{+}\DecValTok{60}
+
+\NormalTok{icon\_pos }\OtherTok{\textless{}{-}}\NormalTok{ weekly\_rates }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(Species) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{y =} \FunctionTok{max}\NormalTok{(detections\_per\_camera, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{*} \FloatTok{0.8}\NormalTok{,}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{x =}\NormalTok{ icon\_x) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{left\_join}\NormalTok{(species\_icons, }\AttributeTok{by =} \StringTok{"Species"}\NormalTok{)}
+
+
+\FunctionTok{ggplot}\NormalTok{(weekly\_rates,}
+       \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ week\_date, }\AttributeTok{y =}\NormalTok{ detections\_per\_camera)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{fill =} \StringTok{"grey30"}\NormalTok{, }\AttributeTok{width =} \DecValTok{5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_image}\NormalTok{(}
+    \AttributeTok{data =}\NormalTok{ icon\_pos,}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y, }\AttributeTok{image =}\NormalTok{ img),}
+    \AttributeTok{inherit.aes =} \ConstantTok{FALSE}\NormalTok{,}
+    \AttributeTok{size =} \FloatTok{0.5}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Species, }\AttributeTok{ncol =} \DecValTok{1}\NormalTok{, }\AttributeTok{scales =} \StringTok{"free\_y"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_date}\NormalTok{(}
+  \AttributeTok{date\_breaks =} \StringTok{"3 months"}\NormalTok{,}
+  \AttributeTok{date\_labels =} \StringTok{"\%b \%Y"}\NormalTok{,}
+  \AttributeTok{expand =} \FunctionTok{expansion}\NormalTok{(}\AttributeTok{mult =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.01}\NormalTok{, }\FloatTok{0.02}\NormalTok{))}
+\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{coord\_cartesian}\NormalTok{(}\AttributeTok{clip =} \StringTok{"off"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Year"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Detections per active camera per week"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_bw}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{11}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}
+    \AttributeTok{panel.grid.minor =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{panel.grid.major.x =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{strip.background =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{strip.text =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face =} \StringTok{"bold"}\NormalTok{),}
+    \AttributeTok{axis.title.y =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{margin =} \FunctionTok{margin}\NormalTok{(}\AttributeTok{r =} \DecValTok{8}\NormalTok{)),}
+  \AttributeTok{axis.text.x =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{angle =} \DecValTok{45}\NormalTok{, }\AttributeTok{hjust =} \DecValTok{1}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Code_for_Monitoring_bears_in_Kazakhstan_files/figure-pdf/fig3 weekly detections-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggsave}\NormalTok{(}
+  \StringTok{"plots/weekly\_detections\_per\_active\_camera.png"}\NormalTok{,}
+  \AttributeTok{width =} \DecValTok{18}\NormalTok{,}
+  \AttributeTok{height =} \DecValTok{24}\NormalTok{,}
+  \AttributeTok{units =} \StringTok{"cm"}\NormalTok{,}
+  \AttributeTok{dpi =} \DecValTok{300}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Figure 4}\label{figure-4}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{activity\_data }\OtherTok{\textless{}{-}}\NormalTok{ Raw\_Data\_USED\_AT }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Date\_parsed =} \FunctionTok{mdy}\NormalTok{(Date),}
+    \AttributeTok{Time\_trim   =} \FunctionTok{str\_trim}\NormalTok{(Time),}
+    \AttributeTok{Species     =} \FunctionTok{str\_squish}\NormalTok{(Species),}
+
+    \AttributeTok{datetime =} \FunctionTok{parse\_date\_time}\NormalTok{(}
+      \FunctionTok{paste}\NormalTok{(Date\_parsed, Time\_trim),}
+      \AttributeTok{orders =} \FunctionTok{c}\NormalTok{(}\StringTok{"ymd IMS p"}\NormalTok{, }\StringTok{"ymd IM p"}\NormalTok{),}
+      \AttributeTok{tz =} \StringTok{"UTC"}   \CommentTok{\# or "UTC" if cameras were set to UTC}
+\NormalTok{    ),}
+
+    \AttributeTok{hour =} \FunctionTok{hour}\NormalTok{(datetime)}
+\NormalTok{  )}
+
+\NormalTok{hourly\_activity }\OtherTok{\textless{}{-}}\NormalTok{ activity\_data }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{count}\NormalTok{(Species, hour, }\AttributeTok{name =} \StringTok{"n\_detections"}\NormalTok{)}
+
+
+\NormalTok{hourly\_activity }\OtherTok{\textless{}{-}}\NormalTok{ hourly\_activity }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(Species }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"bear"}\NormalTok{, }\StringTok{"moose"}\NormalTok{, }\StringTok{"red deer"}\NormalTok{, }\StringTok{"roe deer"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Species =} \FunctionTok{factor}\NormalTok{(}
+\NormalTok{      Species,}
+      \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"bear"}\NormalTok{, }\StringTok{"moose"}\NormalTok{, }\StringTok{"red deer"}\NormalTok{, }\StringTok{"roe deer"}\NormalTok{),}
+      \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+        \StringTok{"Eastern Siberian brown bear"}\NormalTok{,}
+        \StringTok{"Moose"}\NormalTok{,}
+        \StringTok{"Caspian red deer"}\NormalTok{,}
+        \StringTok{"Siberian roe deer"}
+\NormalTok{      )}
+\NormalTok{    )}
+\NormalTok{  )}
+
+
+\NormalTok{species\_icons }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{Species =} \FunctionTok{c}\NormalTok{(}
+    \StringTok{"Eastern Siberian brown bear"}\NormalTok{,}
+    \StringTok{"Moose"}\NormalTok{,}
+    \StringTok{"Caspian red deer"}\NormalTok{,}
+    \StringTok{"Siberian roe deer"}
+\NormalTok{  ),}
+  \AttributeTok{img =} \FunctionTok{c}\NormalTok{(}
+    \StringTok{"images/bear.png"}\NormalTok{,}
+    \StringTok{"images/moose.png"}\NormalTok{,}
+    \StringTok{"images/red\_deer.png"}\NormalTok{,}
+    \StringTok{"images/roe\_deer.png"}
+\NormalTok{  )}
+\NormalTok{)}
+
+
+\NormalTok{icon\_x }\OtherTok{\textless{}{-}} \FloatTok{1.1}   \CommentTok{\# early morning, visually clean}
+
+\NormalTok{icon\_pos }\OtherTok{\textless{}{-}}\NormalTok{ hourly\_activity }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(Species) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{y =} \FunctionTok{max}\NormalTok{(n\_detections, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{*} \FloatTok{1.2}\NormalTok{,}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{x =}\NormalTok{ icon\_x) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{left\_join}\NormalTok{(species\_icons, }\AttributeTok{by =} \StringTok{"Species"}\NormalTok{)}
+
+
+\NormalTok{p\_activity }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(hourly\_activity,}
+                     \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ hour, }\AttributeTok{y =}\NormalTok{ n\_detections)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{fill =} \StringTok{"grey30"}\NormalTok{, }\AttributeTok{width =} \FloatTok{0.9}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_image}\NormalTok{(}
+    \AttributeTok{data =}\NormalTok{ icon\_pos,}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y, }\AttributeTok{image =}\NormalTok{ img),}
+    \AttributeTok{inherit.aes =} \ConstantTok{FALSE}\NormalTok{,}
+    \AttributeTok{size =} \FloatTok{0.3}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Species, }\AttributeTok{ncol =} \DecValTok{1}\NormalTok{, }\AttributeTok{scales =} \StringTok{"free\_y"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}
+    \AttributeTok{breaks =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{23}\NormalTok{, }\AttributeTok{by =} \DecValTok{3}\NormalTok{),}
+    \AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{23}\NormalTok{),}
+    \AttributeTok{expand =} \FunctionTok{expansion}\NormalTok{(}\AttributeTok{mult =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.01}\NormalTok{, }\FloatTok{0.02}\NormalTok{))}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}
+    \AttributeTok{expand =} \FunctionTok{expansion}\NormalTok{(}\AttributeTok{mult =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.3}\NormalTok{))}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{coord\_cartesian}\NormalTok{(}\AttributeTok{clip =} \StringTok{"off"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Hour of day"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Number of detection events"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_bw}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{11}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}
+    \AttributeTok{panel.grid.minor =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{panel.grid.major.x =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{strip.background =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{strip.text =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face =} \StringTok{"bold"}\NormalTok{),}
+    \AttributeTok{axis.title.y =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{margin =} \FunctionTok{margin}\NormalTok{(}\AttributeTok{r =} \DecValTok{8}\NormalTok{))}
+\NormalTok{  )}
+
+
+
+\FunctionTok{ggsave}\NormalTok{(}
+  \StringTok{"plots/hourly\_detections\_per\_active\_camera.png"}\NormalTok{,}
+  \AttributeTok{plot=}\NormalTok{p\_activity,}
+  \AttributeTok{width =} \DecValTok{18}\NormalTok{,}
+  \AttributeTok{height =} \DecValTok{24}\NormalTok{,}
+  \AttributeTok{units =} \StringTok{"cm"}\NormalTok{,}
+  \AttributeTok{dpi =} \DecValTok{300}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Figure 5}\label{figure-5}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Figure  models}
+
+\FunctionTok{library}\NormalTok{(MASS)}
+
+\NormalTok{bear\_data }\OtherTok{\textless{}{-}}\NormalTok{ detections\_effort }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{filter}\NormalTok{(Species }\SpecialCharTok{==} \StringTok{"bear"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{count}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{Camera.Number}\StringTok{\textasciigrave{}}\NormalTok{, }\AttributeTok{name =} \StringTok{"detections"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{left\_join}\NormalTok{(effort, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"Camera.Number"} \OtherTok{=} \StringTok{"Camera\_ID"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{left\_join}\NormalTok{(camera\_meta, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"Camera.Number"} \OtherTok{=} \StringTok{"Camera\_ID"}\NormalTok{))}
+
+\NormalTok{m\_bear }\OtherTok{\textless{}{-}} \FunctionTok{glm.nb}\NormalTok{(}
+\NormalTok{  detections }\SpecialCharTok{\textasciitilde{}}\NormalTok{ Dist\_Road\_km }\SpecialCharTok{+}\NormalTok{ Dist\_Village\_km }\SpecialCharTok{+}\NormalTok{ Elevation }\SpecialCharTok{+}
+    \FunctionTok{offset}\NormalTok{(}\FunctionTok{log}\NormalTok{(camera\_days)),}
+  \AttributeTok{data =}\NormalTok{ bear\_data}
+\NormalTok{)}
+
+\FunctionTok{summary}\NormalTok{(m\_bear)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+Call:
+glm.nb(formula = detections ~ Dist_Road_km + Dist_Village_km + 
+    Elevation + offset(log(camera_days)), data = bear_data, init.theta = 12.8702869, 
+    link = log)
+
+Coefficients:
+                  Estimate Std. Error z value Pr(>|z|)    
+(Intercept)     -3.9052017  1.4779820  -2.642  0.00824 ** 
+Dist_Road_km    -0.4001265  0.2008923  -1.992  0.04640 *  
+Dist_Village_km  0.3788381  0.0857805   4.416    1e-05 ***
+Elevation       -0.0001079  0.0005020  -0.215  0.82987    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(12.8703) family taken to be 1)
+
+    Null deviance: 40.5897  on 8  degrees of freedom
+Residual deviance:  8.6882  on 5  degrees of freedom
+AIC: 59.358
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  12.9 
+          Std. Err.:  13.6 
+
+ 2 x log-likelihood:  -49.358 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{make\_prediction\_df }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(var, data, model, }\AttributeTok{n =} \DecValTok{100}\NormalTok{) \{}
+  
+\NormalTok{  newdat }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+    \AttributeTok{Dist\_Road\_km    =} \FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Dist\_Road\_km),}
+    \AttributeTok{Dist\_Village\_km =} \FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Dist\_Village\_km),}
+    \AttributeTok{Elevation       =} \FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Elevation),}
+    \AttributeTok{camera\_days     =} \DecValTok{100}
+\NormalTok{  )}
+  
+\NormalTok{  newdat }\OtherTok{\textless{}{-}}\NormalTok{ newdat[}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, n), ]}
+\NormalTok{  newdat[[var]] }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\FunctionTok{min}\NormalTok{(data[[var]]), }\FunctionTok{max}\NormalTok{(data[[var]]), }\AttributeTok{length.out =}\NormalTok{ n)}
+  
+\NormalTok{  preds }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(}
+\NormalTok{    model,}
+    \AttributeTok{newdata =}\NormalTok{ newdat,}
+    \AttributeTok{type =} \StringTok{"link"}\NormalTok{,}
+    \AttributeTok{se.fit =} \ConstantTok{TRUE}
+\NormalTok{  )}
+  
+\NormalTok{  newdat }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{mutate}\NormalTok{(}
+      \AttributeTok{fit =} \FunctionTok{exp}\NormalTok{(preds}\SpecialCharTok{$}\NormalTok{fit),}
+      \AttributeTok{lwr =} \FunctionTok{exp}\NormalTok{(preds}\SpecialCharTok{$}\NormalTok{fit }\SpecialCharTok{{-}} \FloatTok{1.96} \SpecialCharTok{*}\NormalTok{ preds}\SpecialCharTok{$}\NormalTok{se.fit),}
+      \AttributeTok{upr =} \FunctionTok{exp}\NormalTok{(preds}\SpecialCharTok{$}\NormalTok{fit }\SpecialCharTok{+} \FloatTok{1.96} \SpecialCharTok{*}\NormalTok{ preds}\SpecialCharTok{$}\NormalTok{se.fit),}
+      \AttributeTok{rate\_100 =}\NormalTok{ fit,}
+      \AttributeTok{lwr\_100  =}\NormalTok{ lwr,}
+      \AttributeTok{upr\_100  =}\NormalTok{ upr}
+\NormalTok{    )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pred\_road }\OtherTok{\textless{}{-}} \FunctionTok{make\_prediction\_df}\NormalTok{(}\StringTok{"Dist\_Road\_km"}\NormalTok{, bear\_data, m\_bear) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{variable =} \StringTok{"Distance to road (km)"}\NormalTok{,}
+         \AttributeTok{x =}\NormalTok{ Dist\_Road\_km)}
+
+\NormalTok{pred\_village }\OtherTok{\textless{}{-}} \FunctionTok{make\_prediction\_df}\NormalTok{(}\StringTok{"Dist\_Village\_km"}\NormalTok{, bear\_data, m\_bear) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{variable =} \StringTok{"Distance to village (km)"}\NormalTok{,}
+         \AttributeTok{x =}\NormalTok{ Dist\_Village\_km)}
+
+\NormalTok{pred\_elev }\OtherTok{\textless{}{-}} \FunctionTok{make\_prediction\_df}\NormalTok{(}\StringTok{"Elevation"}\NormalTok{, bear\_data, m\_bear) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{variable =} \StringTok{"Elevation (m)"}\NormalTok{,}
+         \AttributeTok{x =}\NormalTok{ Elevation)}
+
+\NormalTok{pred\_all }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(pred\_road, pred\_village, pred\_elev)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{theme\_pub }\OtherTok{\textless{}{-}} \FunctionTok{theme\_bw}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{11}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}
+    \AttributeTok{panel.border =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{axis.line =} \FunctionTok{element\_line}\NormalTok{(}\AttributeTok{colour =} \StringTok{"black"}\NormalTok{),}
+    \AttributeTok{axis.ticks =} \FunctionTok{element\_line}\NormalTok{(}\AttributeTok{colour =} \StringTok{"black"}\NormalTok{),}
+    \AttributeTok{panel.grid.minor =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{panel.grid.major.x =} \FunctionTok{element\_blank}\NormalTok{(),}
+    \AttributeTok{axis.title.y =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{margin =} \FunctionTok{margin}\NormalTok{(}\AttributeTok{r =} \DecValTok{8}\NormalTok{))}
+\NormalTok{  )}
+
+
+
+\NormalTok{p\_dist\_road }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}
+  \FunctionTok{filter}\NormalTok{(pred\_all, variable }\SpecialCharTok{==} \StringTok{"Distance to road (km)"}\NormalTok{),}
+  \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ rate\_100)}
+\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_ribbon}\NormalTok{(}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ lwr\_100, }\AttributeTok{ymax =}\NormalTok{ upr\_100),}
+    \AttributeTok{fill =} \StringTok{"grey75"}\NormalTok{,}
+    \AttributeTok{alpha =} \FloatTok{0.4}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{colour =} \StringTok{"black"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.9}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Distance to road (km)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Predicted detections per 100 camera{-}days"}
+\NormalTok{  ) }\SpecialCharTok{+}
+\NormalTok{  theme\_pub}
+
+\NormalTok{p\_dist\_village }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}
+  \FunctionTok{filter}\NormalTok{(pred\_all, variable }\SpecialCharTok{==} \StringTok{"Distance to village (km)"}\NormalTok{),}
+  \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ rate\_100)}
+\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_ribbon}\NormalTok{(}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ lwr\_100, }\AttributeTok{ymax =}\NormalTok{ upr\_100),}
+    \AttributeTok{fill =} \StringTok{"grey75"}\NormalTok{,}
+    \AttributeTok{alpha =} \FloatTok{0.4}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{colour =} \StringTok{"black"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.9}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Distance to village (km)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Predicted detections per 100 camera{-}days"}
+\NormalTok{  ) }\SpecialCharTok{+}
+\NormalTok{  theme\_pub}
+
+\NormalTok{p\_elev }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}
+  \FunctionTok{filter}\NormalTok{(pred\_all, variable }\SpecialCharTok{==} \StringTok{"Elevation (m)"}\NormalTok{),}
+  \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ rate\_100)}
+\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_ribbon}\NormalTok{(}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ lwr\_100, }\AttributeTok{ymax =}\NormalTok{ upr\_100),}
+    \AttributeTok{fill =} \StringTok{"grey75"}\NormalTok{,}
+    \AttributeTok{alpha =} \FloatTok{0.4}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{colour =} \StringTok{"black"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.9}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Elevation (m)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Predicted detections per 100 camera{-}days"}
+\NormalTok{  ) }\SpecialCharTok{+}
+\NormalTok{  theme\_pub}
+
+\NormalTok{p\_dist\_village }\OtherTok{\textless{}{-}}\NormalTok{ p\_dist\_village }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{())}
+
+\NormalTok{p\_elev }\OtherTok{\textless{}{-}}\NormalTok{ p\_elev }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{())}
+\NormalTok{p\_combined }\OtherTok{\textless{}{-}}\NormalTok{ p\_dist\_road }\SpecialCharTok{+}\NormalTok{ p\_dist\_village }\SpecialCharTok{+}\NormalTok{ p\_elev}
+
+\NormalTok{p\_combined}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Code_for_Monitoring_bears_in_Kazakhstan_files/figure-pdf/fig5 plots-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggsave}\NormalTok{(}
+  \StringTok{"plots/bear\_predictions\_patchwork.png"}\NormalTok{,}
+  \AttributeTok{plot =}\NormalTok{ p\_combined,}
+  \AttributeTok{width =} \DecValTok{30}\NormalTok{,}
+  \AttributeTok{height =} \DecValTok{15}\NormalTok{,}
+  \AttributeTok{units =} \StringTok{"cm"}\NormalTok{,}
+  \AttributeTok{dpi =} \DecValTok{300}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Session Information}\label{session-information}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sessionInfo}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+R version 4.4.3 (2025-02-28 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26200)
+
+Matrix products: default
+
+
+locale:
+[1] LC_COLLATE=nb-NO.utf-8  LC_CTYPE=nb-NO.utf-8    LC_MONETARY=nb-NO.utf-8
+[4] LC_NUMERIC=C            LC_TIME=C              
+
+time zone: Europe/Oslo
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] patchwork_1.3.2 ggimage_0.3.4   scales_1.4.0    MASS_7.3-65    
+ [5] lubridate_1.9.4 forcats_1.0.0   stringr_1.5.2   dplyr_1.1.4    
+ [9] purrr_1.0.4     readr_2.1.5     tidyr_1.3.1     tibble_3.3.0   
+[13] ggplot2_4.0.0   tidyverse_2.0.0
+
+loaded via a namespace (and not attached):
+ [1] yulab.utils_0.2.1       rappdirs_0.3.3          generics_0.1.4         
+ [4] fontLiberation_0.1.0    ggplotify_0.1.3         stringi_1.8.7          
+ [7] hms_1.1.4               digest_0.6.37           magrittr_2.0.3         
+[10] evaluate_1.0.5          grid_4.4.3              timechange_0.3.0       
+[13] RColorBrewer_1.1-3      fastmap_1.2.0           jsonlite_2.0.0         
+[16] conflicted_1.2.0        fontBitstreamVera_0.1.1 textshaping_1.0.4      
+[19] cli_3.6.5               rlang_1.1.6             fontquiver_0.2.1       
+[22] cachem_1.1.0            withr_3.0.2             yaml_2.3.10            
+[25] gdtools_0.4.4           tools_4.4.3             tzdb_0.5.0             
+[28] memoise_2.0.1           gridGraphics_0.5-1      vctrs_0.6.5            
+[31] R6_2.6.1                magick_2.9.0            lifecycle_1.0.4        
+[34] fs_1.6.6                htmlwidgets_1.6.4       ggfun_0.2.0            
+[37] ragg_1.5.0              pkgconfig_2.0.3         pillar_1.11.1          
+[40] gtable_0.3.6            glue_1.8.0              Rcpp_1.1.0             
+[43] systemfonts_1.3.1       xfun_0.53               tidyselect_1.2.1       
+[46] rstudioapi_0.17.1       ggiraph_0.9.2           knitr_1.50             
+[49] farver_2.1.2            htmltools_0.5.8.1       labeling_0.4.3         
+[52] rmarkdown_2.30          compiler_4.4.3          S7_0.2.0               
+\end{verbatim}
+
+
+
+
+\end{document}
