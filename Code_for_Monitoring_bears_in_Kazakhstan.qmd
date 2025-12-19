@@ -687,6 +687,153 @@ ggsave(
 
 ```
 
+### Figure S1
+
+```{r}
+## ---- Figure S1: monthly (Jan-Dec) detections per active camera ----
+
+## Aggregate detections by species × month-of-year
+monthly_rates <- detections_effort |>
+  mutate(
+    Species = stringr::str_squish(Species),
+    month   = lubridate::month(Date)  # 1-12, pooled across years
+  ) |>
+  count(Species, month, name = "total_detections") |>
+  left_join(
+    camera_days |>
+      mutate(month = lubridate::month(date)) |>
+      distinct(Camera_ID, month) |>
+      count(month, name = "n_active_cameras"),
+    by = "month"
+  ) |>
+  mutate(
+    detections_per_camera = total_detections / n_active_cameras
+  )
+
+## Keep species with >3 detections overall
+species_keep <- monthly_rates |>
+  filter(!is.na(Species), Species != "") |>
+  group_by(Species) |>
+  summarise(n = sum(total_detections), .groups = "drop") |>
+  filter(n > 3) |>
+  pull(Species)
+
+monthly_rates <- monthly_rates |>
+  filter(Species %in% species_keep) |>
+  mutate(
+    Species = factor(
+      Species,
+      levels = c(
+        "badger", "bear", "fox", "moose",
+        "red deer", "roe deer", "sable", "wild boar", "wolverine"
+      ),
+      labels = c(
+        "Asian badger",
+        "Siberian brown bear",
+        "Red fox",
+        "Moose",
+        "Caspian red deer",
+        "Siberian roe deer",
+        "Sable",
+        "Wild boar",
+        "Wolverine"
+      )
+    ),
+    month = factor(
+      month,
+      levels = 1:12,
+      labels = c(
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+      )
+    )
+  ) |>
+  filter(!is.na(Species))
+
+##  Species icon table
+species_icons <- tibble::tibble(
+  Species = c(
+    "Asian badger",
+    "Siberian brown bear",
+    "Red fox",
+    "Moose",
+    "Caspian red deer",
+    "Siberian roe deer",
+    "Sable",
+    "Wild boar",
+    "Wolverine"
+  ),
+  img = c(
+    "images/badger.png",
+    "images/bear.png",
+    "images/fox.png",
+    "images/moose.png",
+    "images/red_deer.png",
+    "images/roe_deer.png",
+    "images/sable.png",
+    "images/wildboar.png",
+    "images/wolverine.png"
+  )
+)
+
+## Icon positions (top-right of each panel)
+icon_pos <- monthly_rates |>
+  group_by(Species) |>
+  summarise(
+    x = 11.5,
+    y = max(detections_per_camera, na.rm = TRUE) * 1.25,
+    .groups = "drop"
+  ) |>
+  left_join(species_icons, by = "Species")
+
+## 5) Plot
+p_s1 <- ggplot(monthly_rates,
+               aes(x = as.numeric(month), y = detections_per_camera)) +
+  geom_col(fill = "grey30", width = 0.8) +
+  ggimage::geom_image(
+    data = icon_pos,
+    aes(x = x, y = y, image = img),
+    inherit.aes = FALSE,
+    size = 0.60
+  ) +
+  facet_wrap(~ Species, ncol = 3, scales = "free_y") +
+  scale_x_continuous(
+    breaks = 1:12,
+    labels = levels(monthly_rates$month),
+    expand = expansion(mult = c(0.01, 0.05))
+  ) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.25))
+  ) +
+  labs(
+    x = "Month",
+    y = "Detections per active camera"
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+  panel.grid.minor = element_blank(),
+  panel.grid.major.x = element_blank(),
+  strip.background = element_blank(),
+  strip.text = element_text(size = 8, face = "bold"),
+ axis.text.x = element_text(size = 8, angle = 45, hjust = 1)
+)
+
+p_s1
+
+
+ggsave(
+  "plots/Fig_S1_monthly_nontarget.png",
+  plot = p_s1,
+  width = 28,   # wider
+  height = 22,  # slightly shorter
+  units = "cm",
+  dpi = 300,
+  bg = "white"
+)
+
+
+```
+
 ### Session Information
 
 ```{r}
