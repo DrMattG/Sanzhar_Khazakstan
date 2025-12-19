@@ -1,10 +1,12 @@
 # get silhouettes
-
 library(rphylopic)
 library(tidyverse)
 library(ggimage)
 library(lubridate)
 library(patchwork)
+#library(grid)
+library(readr)
+#library(magick)
 # 1. Get UUIDs
 uid_bear     <- get_uuid("Ursus arctos")
 uid_moose    <- get_uuid("Alces alces")
@@ -29,15 +31,19 @@ save_phylopic(img_red_deer, path = "images/red_deer.png",
 save_phylopic(img_roe_deer, path = "images/roe_deer.png",
               width = 500, height = 500, bg = "transparent")
 
-grob_bear     <- rasterGrob(image_read("images/bear.png"), interpolate = TRUE)
-grob_moose    <- rasterGrob(image_read("images/moose.png"), interpolate = TRUE)
-grob_red_deer <- rasterGrob(image_read("images/red_deer.png"), interpolate = TRUE)
-grob_roe_deer <- rasterGrob(image_read("images/roe_deer.png"), interpolate = TRUE)
+# grob_bear     <- rasterGrob(image_read("images/bear.png"), interpolate = TRUE)
+# grob_moose    <- rasterGrob(image_read("images/moose.png"), interpolate = TRUE)
+# grob_red_deer <- rasterGrob(image_read("images/red_deer.png"), interpolate = TRUE)
+# grob_roe_deer <- rasterGrob(image_read("images/roe_deer.png"), interpolate = TRUE)
 
 
 ## get images for the other species
 
-species_all <- sort(unique(yearly_activity$Species))
+
+Raw_Data_USED_AT <- read_csv("data/Raw_Data_USED_AT.csv")
+
+
+species_all <- sort(unique(Raw_Data_USED_AT$Species))
 
 species_missing <- setdiff(
   species_all,
