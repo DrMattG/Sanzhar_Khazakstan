@@ -37,6 +37,7 @@ The focal species is *Ursus arctos* in the Altai region which spans Kazakhstan, 
 
 ## Repository structure
 
+```text
 Sanzhar_Khazakstan/
 ????????? Code_for_Monitoring_bears_in_Kazakhstan.qmd
 ????????? Code_for_Monitoring_bears_in_Kazakhstan.html
@@ -110,6 +111,7 @@ Sanzhar_Khazakstan/
 ????????? LICENSE
 ????????? Sanzhar_Khazakstan.Rproj
 
+```
 
 ## Data description
 
